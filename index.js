@@ -49,14 +49,13 @@
     src.connect(analyser);
 
     let data = new Uint8Array(num_bar);
-    let w = 0;
 
-    setInterval(() => {
+    const visualizeSound = () => {
       canvas.width  = window.innerWidth;
       canvas.height = window.innerHeight;
 
       ctx.fillStyle = bar_color;
-      w = canvas.width / num_bar;
+      const w = canvas.width / num_bar;
 
       analyser.getByteFrequencyData(data);
 
@@ -65,7 +64,12 @@
       }
 
       ctx.fill();
-    }, 20);
+
+      requestAnimationFrame(visualizeSound);
+    };
+
+    // 初回実行
+    requestAnimationFrame(visualizeSound);
   }
 
 })();
