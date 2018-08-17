@@ -10,6 +10,7 @@
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
   const bar_color = 'green';
+  const fftsize = 128;
 
   // マイクと接続
   navigator.mediaDevices.getUserMedia({ audio: true })
@@ -44,22 +45,25 @@
 
     const src = audio_ctx.createMediaStreamSource(evt);
     const analyser = audio_ctx.createAnalyser(evt);
-    analyser.fftSize = 128;
+    analyser.fftSize = fftsize;
     src.connect(analyser);
 
-    let data = new Uint8Array(analyser.frequencyBinCount);
+    let freq_domain = new Uint8Array(analyser.frequencyBinCount);
 
     const visualizeSound = () => {
       canvas.width  = window.innerWidth;
       canvas.height = window.innerHeight;
-
       ctx.fillStyle = bar_color;
-      const w = canvas.width / analyser.frequencyBinCount;
 
-      analyser.getByteFrequencyData(data);
+      analyser.getByteFrequencyData(freq_domain);
 
       for (let i = 0; i < analyser.frequencyBinCount; ++i) {
-        ctx.rect(i * w, canvas.height - data[i] * 2, w, data[i] * 2);
+        const percent  = freq_domain[i] / 256;
+        const bar_height = canvas.height * percent;
+        const bar_width = canvas.width / analyser.frequencyBinCount;
+        const offset = canvas.height - bar_height;
+
+        ctx.rect(i * bar_width, offset, bar_width, bar_height);
       }
 
       ctx.fill();
